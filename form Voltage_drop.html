@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="Alina">
+        <meta name="description" content="Voltage_drop">
+        <title>Voltage drop FORM</title>
+        <link rel = "stylesheet" href = "styles.css">
+    </head>
+    <body> 
+        <header><h2>Выбор сечения питающего кабеля до электроприемника </br>по допустимой потере напряжения</h2></header>
+        <div>Расчет сети по потере напряжения в кабельной линии от ТП до наиболее удаленного электроприемника выполнен</br>
+            по методике, изложенной в пособии "Как выбрать сечение проводов и кабелей" под редакцией Ф.Ф.Карпова.</br></br>
+            Потеря напряжения в линии при заданном сечении кабеля определяется по формуле:</br> 
+            ΔU = ΔU<sub>3фаз</sub>+ΔU<sub>1фаз</sub></br> 
+            где:</br> 
+            ΔU<sub>3фаз</sub>=(P*L)/(F*10*g*0,38<sup>2</sup>) - потеря напряжения в 3-х фазной линии;</br> 
+            ΔU<sub>1фаз</sub>=(2*P*L)/(F*10*g*0,22<sup>2</sup>) - потеря напряжения в 1 фазной линии;</br>
+            P - мощность потребителя, кВт;</br>
+            L - длина участка цепи, м; </br>
+            F - сечение проводников, мм<sup>2</sup>;</br> 
+            g  - удельная проводимость материала проводов, м/(Ом*мм<sup>2</sup>).</br> 
+
+        </div>
+            
+              
+        <img src="Voltage_drop.jpg" alt="Схема сети" width="30%">
+        <form action="#" method="#" id="form">
+            <label>Выберите номинал напряжения</label></br>
+            <select name="type_voltage">
+                <option value="380">380 B</option>
+                <option value="220">220 B</option>
+            </select></br>
+
+            <label>Выберите материал кабеля</label></br>
+            <select name="type_material">
+                <option value="0">медь</option>
+                <option value="1">алюминий</option>
+            </select></br>
+
+            <!-- <label for="type_voltage">Введите Номинал напряжения, B: 380 или 220</label>
+            <input type="number" placeholder="380" name="type_voltage"></br></br>
+
+            <label for="type_material">Введите материал кабеля: 0-медь, 1-алюминий</label>
+            <input type="number" placeholder="0" name="type_material"></br></br> -->
+
+            <label for="cable_qty">Введите кол-во жил на фазу N (по умолчанию n=1)</label>
+            <input type="number" placeholder="1" value="1" name="cable_qty" min="1" max="500" step="1"></br></br>
+
+            <label for="cable_S">Введите сечение кабеля F, кв.мм.</label>
+            <input type="number" placeholder="2.5" name="cable_S" min="0" max="6000" step="0.01"></br></br>
+
+            <label for="cable_len">Введите длину кабеля L, м</label>
+            <input type="number" placeholder="0" name="cable_len" min="0" step="0.1"></br></br>
+
+            <label for="active_power">Введите мощность потребителя Р, кВт</label>
+            <input type="number" placeholder="0" name="active_power" min="0" step="0.001"></br></br>
+            <div>
+
+            <button type="submit">Расчет</button>
+            </div>
+        </form>
+        <h1 id="answer">потеря напряжения = <div id="result"></div></h1>
+
+        
+
+    </body>
+    <footer id="copyright">&#169 А.Д. Махт, 2022</footer> 
+
+
+    <script>
+        const form = document.getElementById('form'); //Найдем элемент form по идентификатору
+        console.log(form); //Для проверки form, выведем в консоль
+
+        const data = 0;
+        let udel_provod_material = 0;
+
+        if (form) {
+            form.addEventListener('submit', getFormValue);
+        };
+       
+        function getFormValue(event) {
+            event.preventDefault(); //отменим дефолтное поведение браузера 
+                                    //(После нажатия на кнопку Отправить, браузер перезагрузится)
+       
+            const cable_qty = form.querySelector('[name="cable_qty"]'), //получаем поле cable_qty
+                  cable_S = form.querySelector('[name="cable_S"]'), //получаем поле cable_S
+                  cable_len = form.querySelector('[name="cable_len"]'), //получаем поле cable_len
+                  active_power = form.querySelector('[name="active_power"]'), //получаем поле active_power
+                  type_voltage = form.querySelector('[name="type_voltage"]'), //получаем поле type_voltage
+                  type_material = form.querySelector('[name="type_material"]'); //получаем поле type_material
+
+            const data = {   //Создадим объект, в который запишем полученные данные
+                  cable_qty: cable_qty.value,
+                  cable_S: cable_S.value,
+                  cable_len: cable_len.value,
+                  active_power: active_power.value,
+                  type_voltage: type_voltage.value,
+                  type_material: type_material.value
+            };
+
+
+        if (+data["type_material"] == 0){
+            udel_provod_material = 58.8;
+        } else if (+data["type_material"] == 1){
+            udel_provod_material = 31.7;
+        } else{
+            alert("Тип материала введен неправильно! 0-медь, 1-алюминий");
+        };
+
+
+        if (data["type_voltage"] == 380){
+            result = (data["cable_len"] * data["active_power"])/(10 * udel_provod_material * data["type_voltage"] * data["type_voltage"] * data["cable_S"] /1000000);
+        }else if (data["type_voltage"] == 220){
+            result = (2 * data["cable_len"] * data["active_power"])/(10 * udel_provod_material * data["type_voltage"] * data["type_voltage"] * data["cable_S"]/1000000);
+        }else {
+            alert("Номинал напряжения введен неправильно! 380 или 220");
+        };
+        document.getElementById("result").innerHTML = result;
+
+        //alert("падение напряжения на участке: " + result);
+
+         //console.log(data); //Для проверки data, выведем в консоль
+        };
+    </script>
+
+</html>
